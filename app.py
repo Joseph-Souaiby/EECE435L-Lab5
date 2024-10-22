@@ -127,6 +127,44 @@ def delete_user(user_id):
         conn.close()
     return message
 
+@app.route('/api/users', methods=['GET'])
+def api_get_users():
+    return jsonify(get_users())
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def api_get_user(user_id):
+    user = get_user_by_id(user_id)
+    if user:
+        return jsonify(user)
+    else:
+        return jsonify({'error': 'User not found'}), 404
+
+@app.route('/api/users/add', methods=['POST'])
+def api_add_user():
+    user = request.get_json()
+    inserted_user = insert_user(user)
+    return jsonify(inserted_user), 201
+
+@app.route('/api/users/update', methods=['PUT'])
+def api_update_user():
+    user = request.get_json()
+    updated_user = update_user(user)
+    if updated_user:
+        return jsonify(updated_user)
+    else:
+        return jsonify({'error': 'User not found or update failed'}), 400
+
+@app.route('/api/users/delete/<int:user_id>', methods=['DELETE'])
+def api_delete_user(user_id):
+    result = delete_user(user_id)
+    if 'successfully' in result.get('status', ''):
+        return jsonify(result)
+    else:
+        return jsonify(result), 400
+
+
 if __name__ == "__main__":
-    create_db_table()
-    app.run()
+    # Uncomment the next line if you need to recreate the database table
+    # create_db_table()
+    app.run(debug=True)
+
